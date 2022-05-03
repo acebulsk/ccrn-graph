@@ -8,7 +8,6 @@ output$header2 <- renderUI({
 
 available_timeseries <- reactive({
   req(input$custom_site)
-  
   data <- WISKIr::findWISKItimeseries(input$custom_site)
 })
 
@@ -26,18 +25,18 @@ output$varSelection1 <- renderUI({
   # checkboxGroupInput(inputId = "custom_var_subset", label = "Select Subset:", choices = stnSubset, inline = FALSE)
 })
 
-output$varSelection2 <- renderUI({
-  req(available_timeseries())
-  
-  df <- available_timeseries()
-  
-  # get colnames from reactive dataset
-  
-  stnVars <- unique(df$stationparameter_name)
-  
-  selectInput(inputId = "custom_var2", label = "Select Second Variable:", choices = c("", as.character(stnVars)), multiple = F)
-  # checkboxGroupInput(inputId = "custom_var_subset", label = "Select Subset:", choices = stnSubset, inline = FALSE)
-})
+# output$varSelection2 <- renderUI({
+#   req(available_timeseries())
+#   
+#   df <- available_timeseries()
+#   
+#   # get colnames from reactive dataset
+#   
+#   stnVars <- unique(df$stationparameter_name)
+#   
+#   selectInput(inputId = "custom_var2", label = "Select Second Variable:", choices = c("", as.character(stnVars)), multiple = F)
+#   # checkboxGroupInput(inputId = "custom_var_subset", label = "Select Subset:", choices = stnSubset, inline = FALSE)
+# })
 
 # get available variables for selected station
 output$varSelectionSubset <- renderUI({
@@ -92,14 +91,14 @@ custom_data_query <- reactive({
   data1 <- getWISKIvalues(timeSeries = ts_id1, startDate = paste0(input$custom_year_min, '-01-01'), endDate = paste0(paste0(input$custom_year_max, '-12-31')), timezone = 'MST') %>% 
     mutate(time = as.POSIXct(time, tz = "MST"))
   
-  if(nchar(input$custom_var2)>1){
-    ts_id2 <- df[df$stationparameter_name == input$custom_var2 & df$ts_name == input$custom_var_subset, ]$ts_id
-    data2 <- getWISKIvalues(timeSeries = ts_id2, startDate = paste0(input$custom_year_min, '-01-01'), endDate = paste0(paste0(input$custom_year_max, '-12-31')), timezone = 'MST') %>% 
-      mutate(time = as.POSIXct(time, tz = "MST"))
-    return(left_join(data1, data2, by = 'time'))
-  } else {
-    return(data1)
-  }
+  # if(nchar(input$custom_var2)>1){
+  #   ts_id2 <- df[df$stationparameter_name == input$custom_var2 & df$ts_name == input$custom_var_subset, ]$ts_id
+  #   data2 <- getWISKIvalues(timeSeries = ts_id2, startDate = paste0(input$custom_year_min, '-01-01'), endDate = paste0(paste0(input$custom_year_max, '-12-31')), timezone = 'MST') %>% 
+  #     mutate(time = as.POSIXct(time, tz = "MST"))
+  #   return(left_join(data1, data2, by = 'time'))
+  # } else {
+  #   return(data1)
+  # }
 
 
   
@@ -168,37 +167,7 @@ output$plot1 <- renderPlotly({
   df <- finalData() 
   
   
-  if(nchar(input$custom_var2)>1){
-    
-    varNames <- c(input$custom_var1, input$custom_var2)
-    
-    plot_ly(data = df,
-            type = "scatter",
-            mode ="lines",
-            #hovertemplate = paste('%{x}<br>%{yaxis.title.text}: %{y}<extra></extra>')
-            hoverinfo = 'text',
-            text = ~paste(time, '</br></br><b>',varNames[1],': ', round(get(names(df)[2]), 2), '</br><b>', varNames[2], ': ', round(get(names(df)[4]), 2))
-    ) %>%
-      add_trace(x = ~time,
-                y = ~(df)[[2]],
-                name = varNames[1],
-                line = list(color = lineGraphColour$colOne, width = 1)) %>%
-      add_trace(x = ~time,
-                y = ~(df)[[4]],
-                name = varNames[2],
-                yaxis = "y2",
-                line = list(color = lineGraphColour$colTwo, width = 1)) %>%
-      
-      layout(
-        xaxis = c(generalAxLayout, list(title = "")),
-        yaxis = c(generalAxLayout, list(title=paste0("<b>",varNames[1],"</b>"),titlefont = list(color = lineGraphColour$colOne))),
-        yaxis2 = c(generalAxLayout, list(titlefont = list(color = lineGraphColour$colTwo), overlaying = "y", side = "right", title = paste0("<b>",varNames[2],"</b>"))),
-        margin = marg,
-        showlegend = F,
-        plot_bgcolor = "#f5f5f5",
-        paper_bgcolor = "#f5f5f5"
-      )
-  } else {
+  
     plot_ly(df) %>%
       add_lines(x = ~time,
                 y = ~(df)[[2]],
@@ -216,7 +185,5 @@ output$plot1 <- renderPlotly({
         plot_bgcolor = "#f5f5f5",
         paper_bgcolor = "#f5f5f5"
       )
-    
-  }
   
 })
