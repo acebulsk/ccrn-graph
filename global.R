@@ -9,6 +9,8 @@ library(shinydashboard)
 library(dashboardthemes)
 library(WISKIr)
 
+options(scipen = 999)
+
 
 Sys.setenv(TZ = 'UTC')
 
@@ -43,6 +45,16 @@ setYr <- function(DATE_TIME, YEAR) {
   year(DATE_TIME) <- YEAR
 
   DATE_TIME
+}
+
+get_wiski_value_long <- function(ts_id, station_name, ts_name,  startDate, endDate, timezone, site.url){
+  df <- getWISKIvalues(timeSeries = ts_id, startDate = startDate, endDate = endDate, timezone = timezone)
+  names(df)[2] <- 'value'
+  df$station_name <- station_name
+  df$ts_name <- ts_name
+  df$time <- as.POSIXct(df$time)
+  
+  return(df)
 }
 
 # calculate water year by date

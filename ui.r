@@ -29,24 +29,28 @@ ui <- function(request) {
                 ),
                 fluidRow(
                   column(2,
-                         selectInput("custom_site",
+                         selectizeInput("custom_site",
                                         label = "Choose a Weather Station:",
-                                     choices = stations$station_name,
-                                     selected = cur_stn,
-                                        selectize = F
+                                     choices = NULL
 
                          ),
                          # selectInput("custom_year", "Select Water Year", "",  selectize = F),
                          uiOutput("varSelection1"),
                          uiOutput("varSelectionSubset"),
-                         uiOutput("customYearMin"),
-                         uiOutput("customYearMax"),
-                         uiOutput("cleanSnowButton")
+                         uiOutput("custom_date_min"),
+                         uiOutput("custom_date_max"),
+                         uiOutput("cleanSnowButton"),
+                         numericInput(
+                           inputId = 'fig_height',
+                           label = 'Figure Height in Pixels:',
+                           value = 300
+                         ),
+                         downloadButton("downloadData", "Download")
                   ),
                   column(10,
-                         # htmlOutput('header2'),
+                         htmlOutput('header2'),
                          wellPanel(
-                           plotlyOutput("plot1", height = "40vh"),
+                           uiOutput('plot_multi_ui'),
                            chooseSliderSkin('Flat',color = "#99ccff"),
                            div(style = "margin-top:-3.5em; margin-bottom: -2em",
                                fluidRow(uiOutput("slider"), align = 'center'))
